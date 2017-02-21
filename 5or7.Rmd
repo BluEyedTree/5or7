@@ -41,7 +41,7 @@ for (i in 1:40){
   total = total + as.integer(n)
 }
 
-#24/40 Is the current accuracy of the logistic regression
+#18/40 Is the current accuracy of the logistic regression
 
 
 ```
@@ -98,7 +98,7 @@ Lets Try Training the Logistic Regression with the addtion of 100 variables in e
 ```{r, echo=FALSE}
 
 trainData = justTrainData
-#Train Dat Data
+
 trainData$label = as.factor(trainData$label)
 Reg = glm(label~.,data=trainData, family=binomial)
 
@@ -112,8 +112,9 @@ for (i in 1:40){
   total = total + as.integer(n)
 }
 
-#24/40 Same Results as before. Adding a hundred columns to the left and right does not work. 
-#This was not the most intelligent approach because the high number of variables was the problem, so adding more would probably not help
+#24/40 Slight Improvement. 
+#This result is a bit suprising, because it actually increases
+#the rank deficiency of the matrix. 
 
 
 ```
@@ -126,7 +127,7 @@ trainData = read.csv("train_data.csv")
 trainData = trainData[,-1]
 labels = data.frame(trainData$label)
 trainData<- trainData*0.25
-#Now lets TRAIN DAT LOGISTIC
+#Now lets TRAIN THAT LOGISTIC MODEL
 
 trainData$label = as.factor(trainData$label)
 Reg = glm(label~.,data=trainData, family=binomial)
@@ -141,14 +142,12 @@ total = 0
 #22/40, slightly worse
 
 #Tried Scaling by 100
-#20/40
+#20/40, even worse
 
 #Tried Scaling by 0.25
-#24/40, back to the original result
+#24/40, same result as centering
 
-#Scaling Doesn't seem to work, sigh....
 
-#Blame the model, not the coder
 
 
 ```
