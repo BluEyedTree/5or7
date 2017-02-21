@@ -1,0 +1,154 @@
+---
+title: "5or7"
+output: html_document
+---
+
+
+A nice function to visualize the row in question
+```{r}
+trainData = read.csv("train_data.csv")
+testData = read.csv("test_data.csv")
+see <- function(rowNum){
+m = matrix(data.matrix(subset(testData[rowNum,],select = 3:785), rownames.force = NA),28,28)
+image(m)
+}
+
+
+```
+
+
+```{r}
+summary(cars)
+setwd("/Users/Tom/R/MachineLearning")
+trainData = read.csv("train_data.csv")
+testData = read.csv("test_data.csv")
+
+trainData = trainData[,-1]
+testData = testData[,-1]
+
+
+#Train Dat Model
+trainData$label = as.factor(trainData$label)
+Reg = glm(label~.,data=trainData, family=binomial)
+
+glm.probs = predict(Reg, testData ,type="response")
+glm.pred=rep("8",40)
+glm.pred[glm.probs >.5]=" 6"
+total = 0
+for (i in 1:40){
+  cat(" ",glm.pred[i],"")
+  n <- readline(prompt="Correct?: ")
+  total = total + as.integer(n)
+}
+
+#24/40 Is the current accuracy of the logistic regression
+
+
+```
+
+
+Prints each plot to a pdf
+```{r, echo=FALSE}
+  pdf("Plots")
+for(i in 1:40){
+
+  see(i)
+}
+dev.off()
+```
+
+
+Attempt to create larger graphs with images, the idea is the number will be more centered
+```{r, echo=FALSE}
+#Lets try creating a new Training Dataset
+
+#Process to create a column of zeros
+emptyList = list()
+zeroAdd = list(0)
+for(i in 1:200){
+  emptyList = append(emptyList,zeroAdd)
+}
+ZeroCol <- data.frame(matrix(unlist(emptyList), nrow=200, byrow=T),stringsAsFactors=FALSE)
+
+
+labels = data.frame(trainData$label)
+justTrainData <- subset( trainData, select = -c(label))
+
+#Adding 100 zero columns to both the left and right of the pixel data. In an effort to simply center the image
+
+for(i in 1:100){
+ justTrainData <- cbind(ZeroCol,justTrainData)
+justTrainData <- cbind(justTrainData,ZeroCol)
+  
+}
+
+
+
+```
+
+
+Visulizing the scaled up images
+```{r, echo=FALSE}
+z = matrix(data.matrix(justTrainData[20,],rownames.force = NA), 28,28)
+image(z)
+```
+
+
+Lets Try Training the Logistic Regression with the addtion of 100 variables in each Direction from the image data. The goal here is to center the image. 
+```{r, echo=FALSE}
+
+trainData = justTrainData
+#Train Dat Data
+trainData$label = as.factor(trainData$label)
+Reg = glm(label~.,data=trainData, family=binomial)
+
+glm.probs = predict(Reg, testData ,type="response")
+glm.pred=rep("8",40)
+glm.pred[glm.probs >.5]=" 6"
+total = 0
+for (i in 1:40){
+  cat(" ",glm.pred[i],"")
+  n <- readline(prompt="Correct?: ")
+  total = total + as.integer(n)
+}
+
+#24/40 Same Results as before. Adding a hundred columns to the left and right does not work. 
+#This was not the most intelligent approach because the high number of variables was the problem, so adding more would probably not help
+
+
+```
+
+
+Perhaps the Solution is to Scale the nonzero values to 1
+
+```{r, echo=FALSE}
+trainData = read.csv("train_data.csv")
+trainData = trainData[,-1]
+labels = data.frame(trainData$label)
+trainData<- trainData*0.25
+#Now lets TRAIN DAT LOGISTIC
+
+trainData$label = as.factor(trainData$label)
+Reg = glm(label~.,data=trainData, family=binomial)
+
+glm.probs = predict(Reg, testData ,type="response")
+glm.pred=rep("8",40)
+glm.pred[glm.probs >.5]=" 6"
+total = 0
+
+
+#Tried Scaling the data by 1000
+#22/40, slightly worse
+
+#Tried Scaling by 100
+#20/40
+
+#Tried Scaling by 0.25
+#24/40, back to the original result
+
+#Scaling Doesn't seem to work, sigh....
+
+#Blame the model, not the coder
+
+
+```
